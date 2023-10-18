@@ -115,6 +115,7 @@ func TestNewProvider(t *testing.T) {
 		issuerURLOverride string
 		trailingSlash     bool
 		wantAuthURL       string
+		wantDeviceAuthURL string
 		wantTokenURL      string
 		wantUserInfoURL   string
 		wantIssuerURL     string
@@ -126,13 +127,15 @@ func TestNewProvider(t *testing.T) {
 			data: `{
 				"issuer": "ISSUER",
 				"authorization_endpoint": "https://example.com/auth",
+				"device_authorization_endpoint": "https://example.com/device",
 				"token_endpoint": "https://example.com/token",
 				"jwks_uri": "https://example.com/keys",
 				"id_token_signing_alg_values_supported": ["RS256"]
 			}`,
-			wantAuthURL:    "https://example.com/auth",
-			wantTokenURL:   "https://example.com/token",
-			wantAlgorithms: []string{"RS256"},
+			wantAuthURL:       "https://example.com/auth",
+			wantDeviceAuthURL: "https://example.com/device",
+			wantTokenURL:      "https://example.com/token",
+			wantAlgorithms:    []string{"RS256"},
 		},
 		{
 			name: "additional_algorithms",
@@ -205,11 +208,12 @@ func TestNewProvider(t *testing.T) {
 		{
 			// Test case taken directly from:
 			// https://accounts.google.com/.well-known/openid-configuration
-			name:            "google",
-			wantAuthURL:     "https://accounts.google.com/o/oauth2/v2/auth",
-			wantTokenURL:    "https://oauth2.googleapis.com/token",
-			wantUserInfoURL: "https://openidconnect.googleapis.com/v1/userinfo",
-			wantAlgorithms:  []string{"RS256"},
+			name:              "google",
+			wantAuthURL:       "https://accounts.google.com/o/oauth2/v2/auth",
+			wantDeviceAuthURL: "https://oauth2.googleapis.com/device/code",
+			wantTokenURL:      "https://oauth2.googleapis.com/token",
+			wantUserInfoURL:   "https://openidconnect.googleapis.com/v1/userinfo",
+			wantAlgorithms:    []string{"RS256"},
 			data: `{
  "issuer": "ISSUER",
  "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
@@ -315,6 +319,10 @@ func TestNewProvider(t *testing.T) {
 			if p.authURL != test.wantAuthURL {
 				t.Errorf("NewProvider() unexpected authURL value, got=%s, want=%s",
 					p.authURL, test.wantAuthURL)
+			}
+			if p.deviceAuthURL != test.wantDeviceAuthURL {
+				t.Errorf("NewProvider() unexpected wantDeviceAuthURL value, got=%s, want=%s",
+					p.deviceAuthURL, test.wantDeviceAuthURL)
 			}
 			if p.tokenURL != test.wantTokenURL {
 				t.Errorf("NewProvider() unexpected tokenURL value, got=%s, want=%s",
